@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Video Carousel</title>
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            background: linear-gradient(rgba(0, 0, 0, 0.465), rgba(0, 0, 0, 0.691)), url("images/c1.jpg");
+            background-repeat: no-repeat;
+            background-size: cover;
+
+
+        }
+
+        .image-carousel-container {
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        .carousel-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+
+        .carousel-card.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .carousel-card.leaving {
+            opacity: 0;
+            transform: translateY(-100%);
+        }
+
+        .carousel-card.returning {
+            opacity: 0;
+            transform: translateY(100%);
+        }
+
+        .carousel-card.returning.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .carousel-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+        }
+
+        .vid-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            padding: 15px;
+            box-sizing: border-box;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .carousel-card.active .vid-info {
+            transform: translateY(0);
+        }
+
+        .info-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .info-description {
+            font-size: 0.9rem;
+            margin: 5px 0 0;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            /* For the 'Home' link */
+            text-align: center;
+        }
+
+        .control-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .control-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="image-carousel-container">
+        <div class="carousel-card active">
+            <video src="images/vedio1.mp4" muted loop></video>
+            <div class="vid-info">
+                <h3 class="info-title">exams </h3>
+                <p class="info-description">hello students start prepation for exams.</p>
+            </div>
+        </div>
+
+
+        <div class="carousel-card">
+            <video src="images/vedio.mp4" loop muted></video>
+            <div class="vid-info">
+                <h3 class="info-title">Ocean Waves</h3>
+                <p class="info-description">Calm waves on a scenic rocky coast.</p>
+            </div>
+        </div>
+
+        <div class="carousel-card">
+            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/d0EAIqJ1Tec?si=cqBvfKK4oDWmrde8"
+                title="YouTube video player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            <div class="vid-info">
+                <h3 class="info-title">Photographer</h3>
+                <p class="info-description">A shot of a photographer with their camera.</p>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="controls">
+        <button id="backBtn" class="control-btn" disabled>Back</button>
+        <button id="nextBtn" class="control-btn">Next</button>
+        <a href="notice.html" class="control-btn">Home</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const carouselItems = document.querySelectorAll('.carousel-card');
+            const backBtn = document.getElementById('backBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            let currentIndex = 0;
+            let isAnimating = false;
+
+            function updateButtons() {
+                backBtn.disabled = currentIndex === 0;
+                nextBtn.disabled = currentIndex === carouselItems.length - 1;
+            }
+
+            function playVideo(index) {
+                const video = carouselItems[index].querySelector('video');
+                if (video) {
+                    video.currentTime = 0;
+                    video.play();
+                }
+            }
+
+            function pauseVideo(index) {
+                const video = carouselItems[index].querySelector('video');
+                if (video) {
+                    video.pause();
+                }
+            }
+
+            function showItem(newIndex, direction) {
+                if (isAnimating || newIndex === currentIndex) return;
+
+                isAnimating = true;
+
+                const currentItem = carouselItems[currentIndex];
+                const newItem = carouselItems[newIndex];
+
+                if (direction === 'next') {
+                    currentItem.classList.add('leaving');
+                    newItem.classList.remove('returning');
+                } else if (direction === 'back') {
+                    currentItem.classList.add('returning');
+                    newItem.classList.remove('leaving');
+                }
+
+                pauseVideo(currentIndex);
+                currentItem.classList.remove('active');
+
+                setTimeout(() => {
+                    currentItem.classList.remove('leaving', 'returning');
+                    newItem.classList.add('active');
+                    currentIndex = newIndex;
+                    updateButtons();
+                    playVideo(currentIndex);
+                    isAnimating = false;
+                }, 500);
+            }
+
+            nextBtn.addEventListener('click', () => {
+                if (currentIndex < carouselItems.length - 1) {
+                    showItem(currentIndex + 1, 'next');
+                }
+            });
+
+            backBtn.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    showItem(currentIndex - 1, 'back');
+                }
+            });
+
+            // Initialize the carousel
+            carouselItems[0].classList.add('active');
+            playVideo(0);
+            updateButtons();
+        });
+    </script>
+
+</body>
+
+</html>
