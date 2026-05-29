@@ -1,1 +1,1 @@
-# mycollage
+A modern college website frontend project built using HTML, CSS, and JavaScript. Designed for desktop users with interactive UI sections, smooth design, and responsive frontend components for practice and learning purposes.
